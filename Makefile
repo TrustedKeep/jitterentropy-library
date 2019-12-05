@@ -4,7 +4,7 @@ CC ?= gcc
 CFLAGS +=-Wextra -Wall -pedantic -fPIC -O0
 #Hardening
 CFLAGS +=-fstack-protector-all -fwrapv --param ssp-buffer-size=4
-LDFLAGS +=-Wl,-z,relro,-z,now
+#LDFLAGS +=-Wl,-Z,relro,-Z,now
 
 # Change as necessary
 PREFIX := /usr/local
@@ -30,7 +30,7 @@ analyze_plists = $(analyze_srcs:%.c=%.plist)
 
 INCLUDE_DIRS :=
 LIBRARY_DIRS :=
-LIBRARIES := rt
+LIBRARIES := 
 
 CFLAGS += $(foreach includedir,$(INCLUDE_DIRS),-I$(includedir))
 LDFLAGS += $(foreach librarydir,$(LIBRARY_DIRS),-L$(librarydir))
@@ -44,7 +44,7 @@ $(NAME)-static: $(OBJS)
 	$(AR) rcs lib$(NAME).a $(OBJS)
 
 $(NAME): $(OBJS)
-	$(CC) -shared -Wl,-soname,lib$(NAME).so.$(LIBMAJOR) -o lib$(NAME).so.$(LIBVERSION) $(OBJS) $(LDFLAGS)
+	$(CC) -shared -Wl,-install_name,lib$(NAME).so.$(LIBMAJOR) -o lib$(NAME).so.$(LIBVERSION) $(OBJS) $(LDFLAGS)
 
 $(analyze_plists): %.plist: %.c
 	@echo "  CCSA  " $@
@@ -60,7 +60,7 @@ install:
 	install -m 644 doc/$(NAME).3 $(DESTDIR)$(PREFIX)/share/man/man3/
 	gzip -9 $(DESTDIR)$(PREFIX)/share/man/man3/$(NAME).3
 	install -d -m 0755 $(DESTDIR)$(PREFIX)/$(LIBDIR)
-	install -m 0755 -s lib$(NAME).so.$(LIBVERSION) $(DESTDIR)$(PREFIX)/$(LIBDIR)/
+	install -m 0755 lib$(NAME).so.$(LIBVERSION) $(DESTDIR)$(PREFIX)/$(LIBDIR)/
 	install -d -m 0755 $(DESTDIR)$(PREFIX)/$(INCDIR)
 	install -m 0644 jitterentropy.h $(DESTDIR)$(PREFIX)/$(INCDIR)/
 	install -m 0644 jitterentropy-base-user.h $(DESTDIR)$(PREFIX)/$(INCDIR)/
